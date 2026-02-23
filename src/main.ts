@@ -29,8 +29,8 @@ const DEFAULT_SETTINGS: PluginSettings = {
 	autoMove:false,
 	enableNotice:false,
 	pngToJpeg:true,
-	quality:'0.6',
-	imgType: "webp",
+	quality:'0.7',
+	imgType: "image/webp",
 	dirpath:"image/" 
 }
 
@@ -173,7 +173,7 @@ export default class PastePngToJpegPlugin extends Plugin {
 	async generateNewName(file: TFile, activeFile: TFile):Promise<string>
 	{
 		const newName = activeFile.basename + '-' + Date.now();
-		const extension = this.settings.pngToJpeg ? this.settings.imgType : file.extension;
+		const extension = this.settings.pngToJpeg ? this.settings.imgType.split('/')[1] : file.extension;
 		
 		return `${newName}.${extension}`;
 	}
@@ -182,7 +182,7 @@ export default class PastePngToJpegPlugin extends Plugin {
 	async keepOrgName(file: TFile, activeFile: TFile):Promise<string>
 	{
 		const newName = file.basename;
-		const extension = this.settings.pngToJpeg ? this.settings.imgType : file.extension;
+		const extension = this.settings.pngToJpeg ? this.settings.imgType.split('/')[1] : file.extension;
 		
 		return `${newName}.${extension}`;
 	}
@@ -278,13 +278,13 @@ class SettingTab extends PluginSettingTab {
 			.setName('Image type')
 			.setDesc(`Use for compress`)
 			.addDropdown(toggle => toggle
-				.addOptions({'webp':'image/webp', 'jpeg':'image/jpeg'})
+				.addOptions({'image/webp':'webp', 'image/jpeg':'jpeg'})
 				.setValue(this.plugin.settings.imgType)
 				.onChange(async (value) => {
 					this.plugin.settings.imgType = value;
 					await this.plugin.saveSettings();
 				}
-			));	
+			));
 			
 		new Setting(containerEl)
 			.setName('Auto Rename')
