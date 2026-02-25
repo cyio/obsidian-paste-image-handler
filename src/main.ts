@@ -251,32 +251,23 @@ class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
+		// Image Compression Group
+		containerEl.createEl('h3', { text: 'Image Compression' });
+
 		new Setting(containerEl)
-			.setName('Png to Jpeg')
-			.setDesc(`Paste images from ClipBoard to notes by copying them through various screenshot software,turn on this feature will automatically convert png to jpeg, and more quality compression volume.`)
+			.setName('Enable Compression')
+			.setDesc(`Compress pasted images to reduce file size. The output format is WebP by default and can be changed in "Image type" settings.`)
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.pngToJpeg)
 				.onChange(async (value) => {
 					this.plugin.settings.pngToJpeg = value;
 					await this.plugin.saveSettings();
 				}
-			));	
-			
-		new Setting(containerEl)
-			.setName('Quality')
-			.setDesc(`The smaller the Quality, the greater the compression ratio.`)
-			.addDropdown(toggle => toggle
-				.addOptions({'0.1':'0.1','0.2':'0.2','0.3':'0.3','0.4':'0.4','0.5':'0.5','0.6':'0.6','0.7':'0.7','0.8':'0.8','0.9':'0.9','1.0':'1.0'})
-				.setValue(this.plugin.settings.quality)
-				.onChange(async (value) => {
-					this.plugin.settings.quality = value;
-					await this.plugin.saveSettings();
-				}
 			));
 
 		new Setting(containerEl)
 			.setName('Image type')
-			.setDesc(`Use for compress`)
+			.setDesc(`Output format for compressed images`)
 			.addDropdown(toggle => toggle
 				.addOptions({'image/webp':'webp', 'image/jpeg':'jpeg'})
 				.setValue(this.plugin.settings.imgType)
@@ -285,7 +276,71 @@ class SettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}
 			));
-			
+
+		let sliderControl: any;
+		let textInput: any;
+
+		new Setting(containerEl)
+			.setName('Quality')
+			.setDesc(`The smaller the Quality, the greater the compression ratio.`)
+			.addSlider(slider => {
+				sliderControl = slider;
+				slider
+					.setLimits(0.1, 1.0, 0.1)
+					.setValue(Number(this.plugin.settings.quality))
+					.onChange(async (value) => {
+						this.plugin.settings.quality = value.toString();
+						textInput.setValue(value.toString());
+						await this.plugin.saveSettings();
+					});
+			})
+			.addText(text => {
+				textInput = text;
+				text
+					.setPlaceholder('0.1-1.0')
+					.setValue(this.plugin.settings.quality)
+					.then(text => {
+						text.inputEl.style.width = '60px';
+					})
+					.onChange(async (value) => {
+						let numValue = Number(value);
+						if (isNaN(numValue)) numValue = 0.7;
+						if (numValue < 0.1) numValue = 0.1;
+						if (numValue > 1.0) numValue = 1.0;
+						this.plugin.settings.quality = numValue.toString();
+						sliderControl.setValue(numValue);
+						await this.plugin.saveSettings();
+					});
+			});
+
+		// File Organization Group
+		containerEl.createEl('h3', { text: 'File Organization' });
+
+		new Setting(containerEl)
+			.setName('Default folder name')
+			.setDesc(`Subfolder name for storing pasted images (e.g., "image/").`)
+			.addText(text => text
+				.setValue(this.plugin.settings.dirpath)
+				.onChange(async (value) => {
+					this.plugin.settings.dirpath = value;
+					await this.plugin.saveSettings();
+				}
+			));
+
+		new Setting(containerEl)
+			.setName('Use Dedicated Image Folder')
+			.setDesc('Store all pasted images in a single dedicated folder rather than in each note\'s folder. Path: [attachment folder]/[default folder name].')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.autoMove)
+				.onChange(async (value) => {
+					this.plugin.settings.autoMove = value;
+					await this.plugin.saveSettings();
+				}
+			));
+
+		// File Rename Group
+		containerEl.createEl('h3', { text: 'File Rename' });
+
 		new Setting(containerEl)
 			.setName('Auto Rename')
 			.setDesc(`Automatically names the image with the name of the previous note +'-'+ the current timestamp + '.' + file type, for example, the image in test.md will be named test-1652261724173.jpeg`)
@@ -295,36 +350,18 @@ class SettingTab extends PluginSettingTab {
 					this.plugin.settings.autoRename = value;
 					await this.plugin.saveSettings();
 				}
-			));	
-			
-		new Setting(containerEl)
-			.setName('Auto Move Image')
-			.setDesc(`Automatically move images to the image directory,If you do not set the default directory for attachments, then it will be stored directly under the image/ folder in the same directory as the notes, if there is a default directory, then it will be stored under the image/ folder in the Magician directory`)
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.autoMove)
-				.onChange(async (value) => {
-					this.plugin.settings.autoMove = value;
-					await this.plugin.saveSettings();
-				}
 			));
+
+		// Notification Group
+		containerEl.createEl('h3', { text: 'Notification' });
 
 		new Setting(containerEl)
 			.setName('Notice When Succeeded')
+			.setDesc(`Show a notification when image is processed successfully.`)
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.enableNotice)
 				.onChange(async (value) => {
 					this.plugin.settings.enableNotice = value;
-					await this.plugin.saveSettings();
-				}
-			));
-
-		new Setting(containerEl)
-			.setName('Default folder name')
-			.setDesc(`Default top level folder name when moving files.`)
-			.addText(text => text
-				.setValue(this.plugin.settings.dirpath)
-				.onChange(async (value) => {
-					this.plugin.settings.dirpath = value;
 					await this.plugin.saveSettings();
 				}
 			));

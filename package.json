@@ -1,5 +1,5 @@
 {
-	"name": "obsidian-paste-png-to-jpeg",
+	"name": "obsidian-paste-image-handler",
 	"version": "1.2.2",
 	"main": "main.js",
 	"scripts": {
@@ -9,7 +9,7 @@
 		"release": "yarn build && gh release create ${npm_package_version} build/*"
 	},
 	"keywords": [],
-	"author": "Reorx",
+	"author": "cyio",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "^16.11.6",
