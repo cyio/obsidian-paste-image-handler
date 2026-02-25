@@ -3,42 +3,27 @@ name: Release
 on:
   push:
     tags:
-      - '*'
-
-permissions:
-  contents: write
+      - 'v*'
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
+      - name: Prepare repository
+        run: git fetch --unshallow --tags
 
-      - name: Install Dependencies
+      - name: Install modules
         run: npm install
 
-      - name: Build Plugin
+      - name: Run build
         run: npm run build
 
-      - name: Create Source Zip
-        run: |
-          zip -r source.zip src/ package.json tsconfig.json manifest.json versions.json README.md LICENSE
-
       - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            build/manifest.json
-            build/main.js
-            build/styles.css
-            source.zip
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm run release
