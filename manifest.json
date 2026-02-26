@@ -1,5 +1,5 @@
 {
-	"id": "obsidian-paste-image-handler",
+	"id": "paste-image-handler",
 	"name": "Paste Image Handler",
 	"version": "1.2.2",
 	"minAppVersion": "0.14.0",
