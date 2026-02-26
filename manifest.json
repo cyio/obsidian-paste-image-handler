@@ -3,7 +3,7 @@
 	"name": "Paste Image Handler",
 	"version": "1.2.2",
 	"minAppVersion": "0.14.0",
-	"description": "Compress and rename pasted images",
+	"description": "Compress and rename pasted images.",
 	"author": "cyio",
 	"authorUrl": "https://github.com/cyio",
 	"isDesktopOnly": false
